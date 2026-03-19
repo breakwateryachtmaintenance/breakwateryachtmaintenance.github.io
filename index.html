@@ -108,7 +108,7 @@
             <div class="section-title">Customer Info</div>
             <div class="grid">
               <div class="field"><label class="label" for="customerName">Customer Name *</label><input class="input" id="customerName" required placeholder="Full name"></div>
-              <div class="field"><label class="label" for="boatName">Boat Name *</label><input class="input" id="boatName" required placeholder="Boat name"></div>
+              <div class="field"><label class="label" for="boatName">Boat Name</label><input class="input" id="boatName" placeholder="Boat name (if applicable)"></div>
               <div class="field"><label class="label" for="phone">Phone</label><input class="input" id="phone" type="tel" placeholder="Best contact number"></div>
               <div class="field"><label class="label" for="email">Email</label><input class="input" id="email" type="email" placeholder="name@email.com"></div>
             </div>
@@ -219,7 +219,6 @@
       };
 
       if (!payload.customerName)                                          { showNotice('Customer name is required.', 'error'); return; }
-      if (!payload.boatName)                                              { showNotice('Boat name is required.', 'error'); return; }
       if (!payload.location)                                              { showNotice('Location is required.', 'error'); return; }
       if (!payload.phone && !payload.email)                               { showNotice('Please provide either a phone number or an email address so we can contact you.', 'error'); return; }
       if (!payload.services.length)                                       { showNotice('Please select at least one service.', 'error'); return; }
