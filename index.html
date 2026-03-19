@@ -1,12 +1,264 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta http-equiv="refresh" content="0; url=https://script.google.com/macros/s/AKfycbz0KBAc_zwLvQIQdbODHZAP0SfaBtaH4YZ3Q0SpgXFYe-hlOhmfeEMaV82MIfClL7wT/exec">
-  <title>BYM Service Request</title>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BYM Boat Services</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #061526;
+      --navy-mid: #0D2137;
+      --navy-card: #122840;
+      --teal: #00C2CC;
+      --teal-dim: #00A3AC;
+      --white: #F0F4F8;
+      --gray: #8FAABB;
+      --gray-dim: #4A6678;
+      --border: rgba(255,255,255,0.08);
+      --danger-bg: rgba(224,90,90,0.14);
+      --danger-border: rgba(224,90,90,0.24);
+      --danger-text: #ffbcbc;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #ffffff; color: var(--white); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+    .page { width: 100%; max-width: 1000px; margin: 0 auto; padding: 24px 16px 56px; }
+    .hero { text-align: center; margin-bottom: 24px; }
+    .eyebrow { color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: 26px; margin: 0; line-height: 1.05; color: var(--navy); }
+    .hero p { color: var(--navy-mid); max-width: 700px; margin: 12px auto 0; line-height: 1.6; font-size: 15px; }
+
+    .shell { width: 100%; background: var(--navy-mid); border-radius: 22px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.22); }
+    .section { padding: 24px; border-bottom: 1px solid var(--border); }
+    .section:last-child { border-bottom: none; }
+    .section-title { color: var(--gray); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 16px; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+    .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; width: 100%; }
+    .field.full { grid-column: 1 / -1; }
+    .label { font-size: 13px; font-weight: 600; color: var(--white); }
+
+    .input, .textarea { display: block; width: 100%; max-width: 100%; min-width: 0; padding: 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--navy-card); color: var(--white); font-size: 16px; line-height: 1.3; font-family: 'DM Sans', sans-serif; transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
+    .input::placeholder, .textarea::placeholder { color: var(--gray-dim); }
+    .input:focus, .textarea:focus { outline: none; border-color: rgba(0,194,204,0.6); box-shadow: 0 0 0 4px rgba(0,194,204,0.08); background: #15314a; }
+    .textarea { min-height: 110px; resize: vertical; }
+
+    input[type="date"].input { -webkit-appearance: none; appearance: none; min-height: 52px; height: 52px; padding: 14px; overflow: hidden; white-space: nowrap; }
+    input[type="date"].input::-webkit-datetime-edit { color: var(--white); padding: 0; }
+    input[type="date"].input::-webkit-calendar-picker-indicator { opacity: 0.9; cursor: pointer; }
+
+    .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .service { display: flex; align-items: center; gap: 14px; background: var(--navy-card); border-radius: 16px; padding: 18px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease; min-height: 72px; user-select: none; min-width: 0; position: relative; }
+    .service:hover { transform: translateY(-1px); border-color: rgba(0,194,204,0.35); }
+    .service input { position: absolute; opacity: 0; pointer-events: none; }
+    .checkbox { width: 32px; height: 32px; flex: 0 0 32px; border: 2px solid #476984; background: transparent; border-radius: 10px; transition: all 0.18s ease; display: flex; align-items: center; justify-content: center; }
+    .service.selected { border-color: rgba(0,194,204,0.55); background: rgba(0,194,204,0.07); }
+    .service.selected .checkbox { background: var(--teal); border-color: var(--teal); }
+    .service.selected .checkbox::after { content: ''; display: block; width: 10px; height: 6px; border-left: 2px solid #061526; border-bottom: 2px solid #061526; transform: rotate(-45deg) translateY(-1px); }
+    .service span { font-size: 14px; font-weight: 500; color: var(--white); min-width: 0; word-break: break-word; }
+
+    .notice { display: none; margin: 0; padding: 0; font-size: 14px; line-height: 1.5; }
+    .notice.show { display: block; padding: 14px 20px; }
+    .notice.show.error { background: var(--danger-bg); border-bottom: 1px solid var(--danger-border); color: var(--danger-text); }
+
+    .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .helper { font-size: 13px; color: var(--gray); max-width: 500px; line-height: 1.5; }
+
+    button[type="submit"] { background: var(--teal); color: #061526; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 14px; border: none; cursor: pointer; transition: background 0.18s ease, transform 0.12s ease; white-space: nowrap; }
+    button[type="submit"]:hover { background: var(--teal-dim); }
+    button[type="submit"]:active { transform: scale(0.97); }
+    button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .success { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 64px 24px; text-align: center; }
+    .success.show { display: flex; }
+    .success-badge { width: 64px; height: 64px; border-radius: 50%; background: rgba(0,194,204,0.15); border: 2px solid var(--teal); color: var(--teal); font-size: 28px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .success h2 { font-family: 'DM Serif Display', serif; font-size: 24px; margin: 0 0 8px; color: var(--white); }
+    .success p { color: var(--gray); font-size: 15px; margin: 0 0 16px; }
+    .request-id { font-size: 13px; color: var(--teal); font-weight: 600; letter-spacing: 0.5px; }
+
+    @media (max-width: 600px) {
+      .grid, .service-grid { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; align-items: stretch; }
+      button[type="submit"] { width: 100%; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-  <a href="https://script.google.com/macros/s/AKfycbz0KBAc_zwLvQIQdbODHZAP0SfaBtaH4YZ3Q0SpgXFYe-hlOhmfeEMaV82MIfClL7wT/exec">
-    Open service request form
-  </a>
+  <div class="page">
+    <div class="hero">
+      <p class="eyebrow">Breakwater Yacht Maintenance</p>
+      <h1>Request Boat Service</h1>
+      <p>Submit your preferred services and availability. Our scheduling team will review your request and confirm timing before anything is added to the live schedule.</p>
+    </div>
+
+    <div class="shell">
+      <div id="formView">
+        <div id="notice" class="notice"></div>
+        <form id="bookingForm">
+
+          <div class="section">
+            <div class="section-title">Customer Info</div>
+            <div class="grid">
+              <div class="field"><label class="label" for="customerName">Customer Name *</label><input class="input" id="customerName" required placeholder="Full name"></div>
+              <div class="field"><label class="label" for="boatName">Boat Name *</label><input class="input" id="boatName" required placeholder="Boat name"></div>
+              <div class="field"><label class="label" for="phone">Phone</label><input class="input" id="phone" type="tel" placeholder="Best contact number"></div>
+              <div class="field"><label class="label" for="email">Email</label><input class="input" id="email" type="email" placeholder="name@email.com"></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Boat Details</div>
+            <div class="grid">
+              <div class="field"><label class="label" for="make">Make</label><input class="input" id="make" placeholder="Sea Ray, Boston Whaler, etc."></div>
+              <div class="field"><label class="label" for="model">Model</label><input class="input" id="model" placeholder="Model"></div>
+              <div class="field"><label class="label" for="length">Length</label><input class="input" id="length" placeholder="Example: 32 ft"></div>
+              <div class="field"><label class="label" for="location">Location *</label><input class="input" id="location" required placeholder="Dock, marina, or storage location"></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Services</div>
+            <div class="service-grid">
+              <label class="service"><input type="checkbox" name="service" value="Remove Cover"><div class="checkbox"></div><span>Remove Cover</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Teak Cleaning"><div class="checkbox"></div><span>Teak Cleaning</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Interior Detail"><div class="checkbox"></div><span>Interior Detail</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Bilge Clean"><div class="checkbox"></div><span>Bilge Clean</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Windows & Glass"><div class="checkbox"></div><span>Windows &amp; Glass</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Clean Metals"><div class="checkbox"></div><span>Clean Metals</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Bottom Paint"><div class="checkbox"></div><span>Bottom Paint</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Hull Wash"><div class="checkbox"></div><span>Hull Wash</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Hull Wax"><div class="checkbox"></div><span>Hull Wax</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Hull Compound & Wax"><div class="checkbox"></div><span>Hull Compound &amp; Wax</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Topside Wash"><div class="checkbox"></div><span>Topside Wash</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Topside Wax"><div class="checkbox"></div><span>Topside Wax</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Topside Compound & Wax"><div class="checkbox"></div><span>Topside Compound &amp; Wax</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Wet Sanding"><div class="checkbox"></div><span>Wet Sanding</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Shrink Wrap"><div class="checkbox"></div><span>Shrink Wrap</span></label>
+              <label class="service"><input type="checkbox" name="service" value="Other"><div class="checkbox"></div><span>Other</span></label>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Scheduling</div>
+            <div class="grid">
+              <div class="field"><label class="label" for="preferredDate">Preferred Date</label><input class="input" type="date" id="preferredDate"></div>
+              <div class="field"><label class="label" for="notes">Notes</label><textarea class="textarea" id="notes" placeholder="Access notes, condition details, special requests, or anything the scheduling team should know."></textarea></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="footer">
+              <div class="helper">Please provide at least one contact method. Our team needs either a phone number or email to follow up and confirm service details.</div>
+              <button type="submit" id="submitBtn">Submit Request</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div id="success" class="success">
+        <div class="success-badge">✓</div>
+        <h2>Request Submitted</h2>
+        <p>Your request has been sent to the scheduling team.</p>
+        <div id="reqid" class="request-id"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0KBAc_zwLvQIQdbODHZAP0SfaBtaH4YZ3Q0SpgXFYe-hlOhmfeEMaV82MIfClL7wT/exec';
+
+    var bookingForm  = document.getElementById('bookingForm');
+    var submitBtn    = document.getElementById('submitBtn');
+    var notice       = document.getElementById('notice');
+    var formView     = document.getElementById('formView');
+    var success      = document.getElementById('success');
+    var reqid        = document.getElementById('reqid');
+    var notesField   = document.getElementById('notes');
+    var serviceInputs = Array.from(document.querySelectorAll('.service input[name="service"]'));
+
+    serviceInputs.forEach(function(input) { input.addEventListener('change', syncAllServiceCards); });
+    syncAllServiceCards();
+
+    function syncAllServiceCards() {
+      serviceInputs.forEach(function(input) {
+        var card = input.closest('.service');
+        if (card) card.classList.toggle('selected', input.checked);
+      });
+    }
+
+    function getSelectedServices() {
+      return serviceInputs.filter(function(i) { return i.checked; }).map(function(i) { return i.value; });
+    }
+
+    bookingForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      clearNotice();
+
+      var services = getSelectedServices();
+      var payload = {
+        customerName:  document.getElementById('customerName').value.trim(),
+        phone:         document.getElementById('phone').value.trim(),
+        email:         document.getElementById('email').value.trim(),
+        boatName:      document.getElementById('boatName').value.trim(),
+        make:          document.getElementById('make').value.trim(),
+        model:         document.getElementById('model').value.trim(),
+        length:        document.getElementById('length').value.trim(),
+        location:      document.getElementById('location').value.trim(),
+        preferredDate: document.getElementById('preferredDate').value,
+        notes:         notesField.value.trim(),
+        services:      services
+      };
+
+      if (!payload.customerName)                                          { showNotice('Customer name is required.', 'error'); return; }
+      if (!payload.boatName)                                              { showNotice('Boat name is required.', 'error'); return; }
+      if (!payload.location)                                              { showNotice('Location is required.', 'error'); return; }
+      if (!payload.phone && !payload.email)                               { showNotice('Please provide either a phone number or an email address so we can contact you.', 'error'); return; }
+      if (!payload.services.length)                                       { showNotice('Please select at least one service.', 'error'); return; }
+      if (payload.services.indexOf('Other') !== -1 && !payload.notes)    { showNotice('Please add notes describing the "Other" service requested.', 'error'); notesField.focus(); return; }
+
+      setLoading(true);
+
+      fetch(SCRIPT_URL, {
+        method:  'POST',
+        mode:    'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload)
+      })
+      .then(function() {
+        setLoading(false);
+        var requestId = 'CR-' + new Date().getTime();
+        formView.style.display = 'none';
+        success.classList.add('show');
+        reqid.innerText = 'Request ID: ' + requestId;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .catch(function() {
+        setLoading(false);
+        showNotice('Something went wrong while submitting your request. Please try again.', 'error');
+      });
+    });
+
+    function setLoading(loading) {
+      submitBtn.disabled    = loading;
+      submitBtn.textContent = loading ? 'Submitting...' : 'Submit Request';
+    }
+    function showNotice(message, type) {
+      notice.textContent = message;
+      notice.className   = 'notice show ' + (type || 'error');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function clearNotice() {
+      notice.textContent = '';
+      notice.className   = 'notice';
+    }
+  </script>
 </body>
 </html>
